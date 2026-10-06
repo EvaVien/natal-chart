@@ -26,7 +26,7 @@
           <input type="date" id="date" required>
           <span class="err" id="err-date"></span>
         </label>
-        <label>Время рождения
+        <label>Время рождения <small>(чем точнее, тем точнее Луна и Асцендент)</small>
           <input type="time" id="time" required>
           <span class="err" id="err-time"></span>
         </label>
@@ -49,6 +49,7 @@
       <h2 id="result-title">Ваша карта</h2>
       <p class="lead" id="result-sub"></p>
 
+      <p class="lead intro">Карта — это снимок неба в момент вашего рождения. Каждая планета отвечает за свою сторону жизни, а знак показывает, как именно она у вас проявляется.</p>
       <div class="cards" id="cards"></div>
 
       <button type="button" class="btn" id="btn-horoscope">
@@ -57,6 +58,7 @@
 
       <article id="horoscope" class="glass horoscope" hidden></article>
 
+      <p class="note">Астрология — способ посмотреть на себя со стороны, а не научный прогноз. Относитесь к описаниям как к поводу для размышления.</p>
       <button type="button" class="link" id="btn-back">Ввести другие данные</button>
     </section>
   </main>

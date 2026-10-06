@@ -134,3 +134,14 @@ input.invalid { border-color: #ff8a8a; }
 @media (min-width: 640px) { .cards { grid-template-columns: repeat(3, 1fr); } .app { padding-top: 80px; } }
 
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } }
+
+/* ===== Пояснения ===== */
+label small { color: var(--muted); font-weight: 300; }
+.intro { max-width: 560px; margin-inline: auto; }
+.cards { grid-template-columns: 1fr; }
+.card { text-align: left; }
+.card .sym, .card .planet, .card .sign { text-align: center; }
+.card .what { margin-top: 12px; font-size: .92rem; line-height: 1.55; }
+.card .how { margin-top: 8px; font-size: .88rem; line-height: 1.55; color: var(--muted); font-weight: 300; }
+.note { margin-top: 28px; font-size: .8rem; color: var(--muted); font-weight: 300; }
+@media (min-width: 640px) { .cards { grid-template-columns: repeat(2, 1fr); } }
