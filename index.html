@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Натальная карта и гороскоп на сегодня</title>
+  <meta name="description" content="Узнайте натальную карту и гороскоп на день за два клика.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500&family=Playfair+Display:ital,wght@0,500;1,400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <!-- Фон: мерцающие звёзды (чистый CSS) -->
+  <div class="stars" aria-hidden="true"><i></i><i></i><i></i></div>
+
+  <main class="app">
+    <!-- ЭКРАН 1: форма -->
+    <section id="screen-form" class="screen active">
+      <h1>Ваша натальная карта</h1>
+      <p class="lead">Введите данные рождения — получите карту и гороскоп на сегодня.</p>
+
+      <form id="birth-form" class="glass" novalidate>
+        <label>Дата рождения
+          <input type="date" id="date" required>
+          <span class="err" id="err-date"></span>
+        </label>
+        <label>Время рождения
+          <input type="time" id="time" required>
+          <span class="err" id="err-time"></span>
+        </label>
+        <label>Город рождения
+          <input type="text" id="city" placeholder="Например, Уфа" autocomplete="off" required>
+          <span class="err" id="err-city"></span>
+        </label>
+        <button type="submit" class="btn">Рассчитать натальную карту</button>
+      </form>
+    </section>
+
+    <!-- ЭКРАН 2: загрузка -->
+    <section id="screen-loading" class="screen" aria-live="polite">
+      <div class="loader" aria-hidden="true">☉</div>
+      <p class="lead">Сверяем положение планет…</p>
+    </section>
+
+    <!-- ЭКРАН 3: результат -->
+    <section id="screen-result" class="screen">
+      <h2 id="result-title">Ваша карта</h2>
+      <p class="lead" id="result-sub"></p>
+
+      <div class="cards" id="cards"></div>
+
+      <button type="button" class="btn" id="btn-horoscope">
+        <i class="fa-regular fa-moon"></i> Гороскоп на сегодня
+      </button>
+
+      <article id="horoscope" class="glass horoscope" hidden></article>
+
+      <button type="button" class="link" id="btn-back">Ввести другие данные</button>
+    </section>
+  </main>
+
+  <script src="script.js"></script>
+</body>
+</html>
