@@ -1,34 +1,17 @@
 /* =====================================================================
    Эфемерида — оформление
-   Идея: ночная фотосессия. Тёмная сцена, один источник света за колесом,
-   тонкие линии вместо карточек, журнальная гарнитура для крупных слов.
-   Цвета и шрифты меняются в блоке :root.
    ===================================================================== */
-
-/* ===== Шрифты (лежат в папке fonts/, внешние сервисы не нужны) ===== */
 @font-face { font-family: 'Prata'; font-weight: 400; font-display: swap; src: url(fonts/prata-cyrillic.woff2) format('woff2'); unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116; }
 @font-face { font-family: 'Prata'; font-weight: 400; font-display: swap; src: url(fonts/prata-latin.woff2) format('woff2'); unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; }
 @font-face { font-family: 'Onest'; font-weight: 100 900; font-display: swap; src: url(fonts/onest-cyrillic.woff2) format('woff2'); unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116; }
 @font-face { font-family: 'Onest'; font-weight: 100 900; font-display: swap; src: url(fonts/onest-latin.woff2) format('woff2'); unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; }
-/* Астрологические значки (Noto Sans Symbols, урезанный до нужных знаков) */
 @font-face { font-family: 'Astro'; font-weight: 400; font-display: swap; src: url(fonts/astro.woff2) format('woff2'); unicode-range: U+2609-260D, U+263D-2653, U+25A1, U+25B3, U+26B9, U+FE0E; }
 
 :root {
-  --ink: #0e0b16;
-  --ink-2: #171223;
-  --line: rgba(238, 230, 248, .13);
-  --line-strong: rgba(238, 230, 248, .3);
-  --pearl: #f2ecf7;
-  --mist: #a79db9;
-  --dim: #7a7090;
-  --rose: #f2b6cb;
-  --champagne: #f3dfae;
-  --ice: #9fc4ff;
-  --ember: #ff7f90;
-  /* стихии */
+  --ink: #0e0b16; --ink-2: #171223; --line: rgba(238, 230, 248, .13); --line-strong: rgba(238, 230, 248, .3);
+  --pearl: #f2ecf7; --mist: #a79db9; --dim: #7a7090; --rose: #f2b6cb; --champagne: #f3dfae; --ice: #9fc4ff; --ember: #ff7f90;
   --fire: #ff9d8c; --earth: #d3c08a; --air: #a9c9ff; --water: #8ed3c6;
-  --display: 'Prata', 'Times New Roman', serif;
-  --body: 'Onest', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --display: 'Prata', 'Times New Roman', serif; --body: 'Onest', system-ui, -apple-system, 'Segoe UI', sans-serif;
   --sym: 'Astro', 'Segoe UI Symbol', 'Noto Sans Symbols', 'DejaVu Sans', sans-serif;
   --pad: clamp(20px, 5vw, 56px);
 }
@@ -38,13 +21,9 @@ html { color-scheme: dark; background: var(--ink); -webkit-text-size-adjust: 100
 body {
   margin: 0; min-height: 100vh; overflow-x: hidden;
   font: 400 16px/1.6 var(--body); color: var(--pearl);
-  background:
-    radial-gradient(60% 46% at 6% 0%, rgba(124, 34, 88, .38), transparent 72%),
-    radial-gradient(52% 44% at 100% 100%, rgba(18, 92, 108, .30), transparent 72%),
-    var(--ink);
+  background: radial-gradient(60% 46% at 6% 0%, rgba(124, 34, 88, .38), transparent 72%), radial-gradient(52% 44% at 100% 100%, rgba(18, 92, 108, .30), transparent 72%), var(--ink);
   background-attachment: fixed;
 }
-/* Мелкое зерно поверх фона — лишает его «цифровой» плоскости */
 body::before {
   content: ''; position: fixed; inset: 0; z-index: 0; pointer-events: none; opacity: .07; mix-blend-mode: overlay;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 .7 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
@@ -54,34 +33,29 @@ h1, h2, h3 { font-family: var(--display); font-weight: 400; font-synthesis: none
 button { font: inherit; color: inherit; }
 ul { padding: 0; list-style: none; }
 
-.skip { position: absolute; left: 12px; top: -60px; z-index: 10; background: var(--pearl); color: var(--ink); padding: 10px 16px; border-radius: 8px; }
+.visually-hidden { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
+.skip { position: absolute; left: 12px; top: -60px; z-index: 10; background: var(--pearl); color: var(--ink); padding: 10px 16px; border-radius: 8px; text-decoration: none; }
 .skip:focus { top: 12px; }
 :focus-visible { outline: 2px solid var(--rose); outline-offset: 3px; }
 
-/* ===== Шапка ===== */
 .top { position: relative; z-index: 2; display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 22px var(--pad); max-width: 1240px; margin: 0 auto; }
 .brand { display: inline-flex; align-items: center; gap: 12px; color: var(--pearl); text-decoration: none; font: 400 1.35rem/1 var(--display); }
 .brand svg { width: 28px; height: 28px; color: var(--rose); }
-.ghost { background: none; border: 1px solid var(--line-strong); color: var(--pearl); padding: 9px 18px; border-radius: 999px; cursor: pointer; font-size: .92rem; transition: border-color .25s, background .25s; }
-.ghost:hover { border-color: var(--rose); background: rgba(242, 182, 203, .08); }
+.header-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+.ghost { background: none; border: 1px solid var(--line-strong); color: var(--pearl); padding: 9px 18px; border-radius: 999px; cursor: pointer; font-size: .92rem; transition: border-color .25s, background .25s; text-decoration: none; display: inline-flex; align-items: center; justify-content: center; }
+.ghost:hover:not(:disabled) { border-color: var(--rose); background: rgba(242, 182, 203, .08); }
 .ghost[hidden] { display: none; }
 
-/* ===== Каркас экранов ===== */
 .app { position: relative; z-index: 1; max-width: 1240px; margin: 0 auto; padding: 0 var(--pad) 40px; }
 .screen { display: none; position: relative; }
 .screen.active { display: block; animation: show .45s ease both; }
 @keyframes show { from { opacity: 0; } }
 
-/* ===== Первый экран ===== */
 .hero { display: grid; gap: 40px; align-items: center; padding: 28px 0 24px; position: relative; z-index: 1; }
 .hero h1 { font-size: clamp(2.7rem, 9vw, 5.4rem); line-height: 1.02; }
 .lead { margin-top: 22px; font-size: clamp(1.02rem, 2.6vw, 1.2rem); color: var(--mist); max-width: 34ch; }
 
-.ornament {
-  position: absolute; z-index: 0; pointer-events: none; opacity: .5;
-  width: min(135vw, 960px); aspect-ratio: 1; right: -50vw; top: -2vh;
-  -webkit-mask-image: radial-gradient(circle, #000 48%, transparent 70%); mask-image: radial-gradient(circle, #000 48%, transparent 70%);
-}
+.ornament { position: absolute; z-index: 0; pointer-events: none; opacity: .5; width: min(135vw, 960px); aspect-ratio: 1; right: -50vw; top: -2vh; -webkit-mask-image: radial-gradient(circle, #000 48%, transparent 70%); mask-image: radial-gradient(circle, #000 48%, transparent 70%); }
 .orn { display: block; width: 100%; height: 100%; }
 .orn .oring { fill: none; stroke: rgba(242, 182, 203, .5); stroke-width: .9; }
 .orn .odiv, .orn .otick { stroke: rgba(238, 230, 248, .28); stroke-width: .8; }
@@ -89,16 +63,13 @@ ul { padding: 0; list-style: none; }
 .orn .oasp { stroke-width: 1; }
 .orn .oasp.soft { stroke: var(--ice); } .orn .oasp.hard { stroke: var(--ember); } .orn .oasp.conj { stroke: var(--champagne); }
 
-/* стихии: цвет значков знаков и подложки секторов */
 .fire { --el: var(--fire); } .earth { --el: var(--earth); } .air { --el: var(--air); } .water { --el: var(--water); }
 .orn .ozs, .wheel .zsign, .g.sg { fill: var(--el); color: var(--el); }
 
-/* «Рисование» линий: единственный эффект при открытии */
 .draw { stroke-dasharray: 1; animation: draw 2.4s cubic-bezier(.22, .7, .2, 1) backwards; animation-delay: calc(var(--i, 0) * .16s + .1s); }
 @keyframes draw { from { stroke-dashoffset: 1; } to { stroke-dashoffset: 0; } }
 @keyframes appear { from { opacity: 0; } }
 
-/* ===== Форма ===== */
 .panel { background: linear-gradient(180deg, rgba(31, 24, 48, .92), rgba(20, 15, 33, .92)); border: 1px solid var(--line); border-radius: 22px; padding: clamp(22px, 4vw, 34px); display: grid; gap: 22px; box-shadow: 0 30px 80px rgba(0, 0, 0, .35); }
 .row2 { display: grid; gap: 22px; grid-template-columns: 1fr 1fr; }
 .field { display: grid; gap: 4px; min-width: 0; }
@@ -110,9 +81,9 @@ input[type="date"], input[type="time"], input[type="text"] {
 }
 input::placeholder { color: var(--dim); }
 input:focus { outline: none; border-bottom-color: var(--rose); box-shadow: 0 1px 0 0 var(--rose); }
-input.invalid { border-bottom-color: var(--ember); box-shadow: 0 1px 0 0 var(--ember); }
+input[aria-invalid="true"] { border-bottom-color: var(--ember); box-shadow: 0 1px 0 0 var(--ember); }
 input:disabled { opacity: .35; cursor: not-allowed; }
-.err { color: var(--ember); font-size: .84rem; }
+.err { color: var(--ember); font-size: .84rem; min-height: 1.2em; }
 .err:empty { display: none; }
 
 .check { display: flex; align-items: center; gap: 12px; cursor: pointer; font-size: .95rem; color: var(--mist); margin-top: -8px; }
@@ -127,16 +98,15 @@ input:disabled { opacity: .35; cursor: not-allowed; }
   background: linear-gradient(135deg, #f7c9da, #ec9fbd); transition: transform .2s, box-shadow .3s, filter .2s;
 }
 .btn:hover:not(:disabled) { transform: translateY(-1px); box-shadow: 0 10px 34px rgba(242, 182, 203, .32); }
-.btn:disabled { filter: saturate(.6) brightness(.85); cursor: progress; }
+.btn:disabled { filter: saturate(.6) brightness(.85); cursor: progress; opacity: 0.7; }
 .privacy { font-size: .84rem; color: var(--dim); margin-top: -6px; line-height: 1.5; }
 
 .choices { display: grid; gap: 0; border-top: 1px solid var(--line); margin-top: -6px; }
 .choices-hint { font-size: .86rem; color: var(--mist); padding: 12px 0 8px; }
-.choice { text-align: left; background: none; border: 0; border-bottom: 1px solid var(--line); padding: 13px 4px; cursor: pointer; color: var(--pearl); transition: background .2s, padding .2s; }
-.choice:hover { background: rgba(242, 182, 203, .08); padding-left: 12px; }
+.choice { text-align: left; background: none; border: 0; border-bottom: 1px solid var(--line); padding: 13px 4px; cursor: pointer; color: var(--pearl); transition: background .2s, padding .2s; border-radius: 4px; }
+.choice:hover, .choice:focus-visible { background: rgba(242, 182, 203, .08); padding-left: 12px; outline: none; }
 .choices[hidden] { display: none; }
 
-/* ===== Результат: заголовок и «большая тройка» ===== */
 .result-head { padding: 18px 0 0; }
 .result-head h2 { font-size: clamp(2.2rem, 6vw, 3.8rem); line-height: 1.05; outline: none; }
 .result-head p { color: var(--mist); margin-top: 10px; }
@@ -156,14 +126,11 @@ input:disabled { opacity: .35; cursor: not-allowed; }
 .result-grid { display: grid; gap: 28px; grid-template-areas: 'head' 'wheel' 'big3' 'read'; }
 .result-head { grid-area: head; }
 .big3 { grid-area: big3; }
-.wheel-col { grid-area: wheel; }
+.wheel-col { grid-area: wheel; min-width: 0; }
 .read-col { grid-area: read; min-width: 0; }
-.wheel-col { min-width: 0; }
 .wheel-note { margin-top: 14px; font-size: .88rem; color: var(--dim); max-width: 52ch; }
 
-/* ===== Колесо ===== */
 .wheel-frame { position: relative; width: 100%; max-width: 680px; margin: 0 auto; aspect-ratio: 1; }
-/* Перламутровое кольцо и мягкий свет вокруг колеса — главный акцент страницы */
 .wheel-frame::before { content: ''; position: absolute; inset: 7.14%; border-radius: 50%; padding: 1.5px; background: conic-gradient(from 210deg, #f2b6cb, #9fc4ff, #8ed3c6, #f3dfae, #f2b6cb); -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor; mask-composite: exclude; opacity: .9; }
 .wheel-frame::after { content: ''; position: absolute; inset: 7.14%; border-radius: 50%; box-shadow: 0 0 90px rgba(242, 182, 203, .16), inset 0 0 70px rgba(159, 196, 255, .06); pointer-events: none; }
 .wheel { position: relative; z-index: 1; display: block; width: 100%; height: 100%; overflow: visible; }
@@ -193,7 +160,6 @@ input:disabled { opacity: .35; cursor: not-allowed; }
 .wheel.hl .asp.on { opacity: 1; filter: drop-shadow(0 0 4px currentColor); }
 .wheel .pg.on .halo { opacity: 1; }
 
-/* ===== Вкладки ===== */
 .tabs { display: flex; gap: 30px; border-bottom: 1px solid var(--line); }
 [role="tab"] { background: none; border: 0; padding: 4px 0 14px; cursor: pointer; color: var(--mist); font-weight: 500; font-size: 1rem; position: relative; transition: color .2s; }
 [role="tab"]:hover { color: var(--pearl); }
@@ -203,7 +169,6 @@ input:disabled { opacity: .35; cursor: not-allowed; }
 [role="tabpanel"][hidden] { display: none; }
 .tab-intro { color: var(--mist); font-size: .94rem; padding: 18px 0 8px; max-width: 54ch; }
 
-/* ===== Планеты ===== */
 .prow { border-bottom: 1px solid var(--line); }
 .prow summary { list-style: none; display: grid; grid-template-columns: 2.6rem 1fr auto; gap: 14px; align-items: center; padding: 15px 6px; cursor: pointer; border-radius: 10px; transition: background .2s; }
 .prow summary::-webkit-details-marker { display: none; }
@@ -223,7 +188,6 @@ input:disabled { opacity: .35; cursor: not-allowed; }
 .small { font-size: .86rem; }
 .note-gold { color: var(--champagne); }
 
-/* ===== Аспекты ===== */
 .aic { width: 18px; height: 18px; flex: none; fill: none; stroke: currentColor; stroke-width: 1.4; stroke-linecap: round; stroke-linejoin: round; }
 .legend { display: grid; gap: 10px; padding: 20px 0 14px; font-size: .92rem; color: var(--mist); }
 .legend li { display: flex; align-items: center; gap: 12px; }
@@ -238,7 +202,6 @@ input:disabled { opacity: .35; cursor: not-allowed; }
 .am { grid-column: 1 / -1; font-size: .86rem; color: var(--dim); text-align: center; }
 .arow.none { display: block; color: var(--mist); }
 
-/* ===== Сегодня ===== */
 #horoscope { padding-top: 26px; display: grid; gap: 4px; max-width: 58ch; }
 #horoscope h3 { font-size: 1.9rem; line-height: 1.15; }
 .when { color: var(--mist); margin-bottom: 18px; }
@@ -247,11 +210,25 @@ blockquote { font: 400 1.3rem/1.5 var(--display); border-left: 2px solid var(--r
 .textbtn { justify-self: start; background: none; border: 0; padding: 8px 0; margin-top: 4px; color: var(--rose); cursor: pointer; text-decoration: underline; text-underline-offset: 4px; }
 .textbtn:hover { color: var(--pearl); }
 
-/* ===== Подвал ===== */
 .foot { position: relative; z-index: 1; max-width: 1240px; margin: 0 auto; padding: 24px var(--pad) 56px; color: var(--dim); font-size: .84rem; }
 .foot p { max-width: 62ch; }
 
-/* ===== Широкие экраны ===== */
+/* Print Styles */
+@media print {
+  body { background: white !important; color: black !important; }
+  body::before, .ornament, .wheel-frame::before, .wheel-frame::after { display: none !important; }
+  .skip, .top, .btn, .ghost, .textbtn, .choices, .tabs, .foot, .chev { display: none !important; }
+  .screen { display: block !important; }
+  #screen-form { display: none !important; }
+  #screen-result { display: block !important; }
+  .wheel-frame { max-width: 400px; margin: 0 auto 20px; }
+  .wheel { color: black !important; }
+  .wheel text { fill: black !important; }
+  .wheel .ring, .wheel .tick, .wheel .cusp, .wheel .lead { stroke: #333 !important; }
+  .prow, .arow { break-inside: avoid; page-break-inside: avoid; }
+  :root { --ink: #ffffff; --pearl: #000000; --mist: #333333; --rose: #000000; --champagne: #000000; --ember: #000000; }
+}
+
 @media (min-width: 640px) and (max-width: 959px) {
   .big3 { grid-template-columns: repeat(3, 1fr); }
   .b3 { padding: 22px 0 22px 26px; }
@@ -273,7 +250,6 @@ blockquote { font: 400 1.3rem/1.5 var(--display); border-left: 2px solid var(--r
   .row2 { gap: 16px; }
   input[type="date"], input[type="time"] { font-size: 1.05rem; }
 }
-
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
 }
