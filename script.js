@@ -65,19 +65,59 @@ function tzOffset(ts, tz) {
 function localToUTC(date, time, tz) {
   const [y, m, d] = date.split('-').map(Number), [h, mi] = time.split(':').map(Number);
   const baseline = Date.UTC(y, m - 1, d, h, mi);
-  let ts = baseline;
-  for (let i = 0; i < 5; i++) ts = baseline + tzOffset(ts, tz);
   
-  const formatter = new Intl.DateTimeFormat('en-US', { timeZone: tz, year: 'numeric', month: 'numeric', day: 'numeric', hour: 'numeric', minute: 'numeric', hourCycle: 'h23' });
+  // Итеративно находим UTC: Локальное = UTC + Смещение  =>  UTC = Локальное - Смещение
+  let ts = baseline;
+  for (let i = 0; i < 5; i++) {
+    ts = baseline - tzOffset(ts, tz);
+  }
+  
+  const formatter = new Intl.DateTimeFormat('en-US', { 
+    timeZone: tz, year: 'numeric', month: 'numeric', day: 'numeric', 
+    hour: 'numeric', minute: 'numeric', hourCycle: 'h23' 
+  });
+  
   const verify = (timestamp) => {
     const parts = {};
     formatter.formatToParts(new Date(timestamp)).forEach(p => { parts[p.type] = +p.value; });
     return parts.year === y && parts.month === m && parts.day === d && parts.hour === h && parts.minute === mi;
   };
   
-  if (!verify(ts)) return { error: 'invalid-local-time' };
-  if (verify(ts - 3600000)) return { error: 'ambiguous-local-time', ts: ts, ts2: ts - 3600000 };
-  return { ts: ts };
+  // Проверяем валидность и overlap
+  if (verify(ts)) {
+    const tsAlt1 = ts - 3600000;
+    const tsAlt2 = ts + 3600000;
+    
+    if (verify(tsAlt1)) {
+      return { error: 'ambiguous-local-time', ts: tsAlt1, ts2: ts };
+    }
+    if (verify(tsAlt2)) {
+      return { error: 'ambiguous-local-time', ts: ts, ts2: tsAlt2 };
+    }
+    
+    return { ts: ts };
+  }
+  
+  // Проверяем, был ли переход DST именно в этот день
+  const dayBefore = new Date(Date.UTC(y, m - 1, d - 1, 12, 0));
+  const dayAfter = new Date(Date.UTC(y, m - 1, d + 1, 12, 0));
+  
+  const offsetBefore = tzOffset(dayBefore.getTime(), tz);
+  const offsetAfter = tzOffset(dayAfter.getTime(), tz);
+  
+  if (offsetBefore !== offsetAfter) {
+    const diff = (offsetAfter - offsetBefore) / 3600000;
+    
+    if (diff > 0) {
+      return { error: 'invalid-local-time' };
+    } else {
+      const firstValidTs = baseline - offsetBefore;
+      const secondValidTs = baseline - offsetAfter;
+      return { error: 'ambiguous-local-time', ts: firstValidTs, ts2: secondValidTs };
+    }
+  }
+  
+  return { error: 'invalid-local-time' };
 }
 
 const dayNumber = (ts) => ts / 86400000 + 2440587.5 - 2451543.5;
