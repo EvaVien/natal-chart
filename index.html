@@ -3,83 +3,106 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Натальная карта и гороскоп на сегодня</title>
-  <meta name="description" content="Натальная карта с колесом, домами и аспектами и гороскоп на день — прямо в браузере.">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500&family=Playfair+Display:ital,wght@0,500;1,400&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <meta name="theme-color" content="#0e0b16">
+  <title>Эфемерида — натальная карта</title>
+  <meta name="description" content="Натальная карта с колесом, домами и аспектами и гороскоп на сейчас. Всё считается в вашем браузере.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%230e0b16'/%3E%3Ccircle cx='16' cy='16' r='9' fill='none' stroke='%23f2b6cb' stroke-width='1.6'/%3E%3Ccircle cx='16' cy='16' r='2' fill='%23f2b6cb'/%3E%3C/svg%3E">
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <!-- Фон: мерцающие звёзды (чистый CSS) -->
-  <div class="stars" aria-hidden="true"><i></i><i></i><i></i></div>
+  <a class="skip" href="#main">К содержимому</a>
 
-  <main class="app">
-    <!-- ЭКРАН 1: форма -->
-    <section id="screen-form" class="screen active">
-      <h1>Ваша натальная карта</h1>
-      <p class="lead">Введите данные рождения — получите карту и гороскоп на сегодня.</p>
+  <header class="top">
+    <a class="brand" href="./" aria-label="Эфемерида, на главную">
+      <svg viewBox="0 0 28 28" aria-hidden="true"><circle cx="14" cy="14" r="11" fill="none" stroke="currentColor" stroke-width="1.3"/><circle cx="14" cy="14" r="5.5" fill="none" stroke="currentColor" stroke-width="1.3"/><path d="M14 3v3.5M14 21.5V25M3 14h3.5M21.5 14H25" stroke="currentColor" stroke-width="1.3"/><circle cx="14" cy="14" r="1.6" fill="currentColor"/></svg>
+      <span>Эфемерида</span>
+    </a>
+    <button type="button" class="ghost" id="btn-new" hidden>Новая карта</button>
+  </header>
 
-      <form id="birth-form" class="glass" novalidate>
-        <label>Дата рождения
-          <input type="date" id="date" required>
-          <span class="err" id="err-date"></span>
-        </label>
-        <label>Время рождения <small>(чем точнее, тем точнее Луна, Асцендент и дома)</small>
-          <input type="time" id="time" required>
-          <span class="err" id="err-time"></span>
-        </label>
-        <label class="check">
-          <input type="checkbox" id="no-time">
-          <span>Не знаю время рождения</span>
-        </label>
-        <label>Город рождения
-          <input type="text" id="city" placeholder="Например, Уфа" autocomplete="off" required>
-          <span class="err" id="err-city"></span>
-        </label>
-        <div id="city-choices" class="choices" hidden role="group" aria-label="Уточните город"></div>
-        <button type="submit" class="btn">Рассчитать натальную карту</button>
-      </form>
+  <main id="main" class="app">
+    <!-- Экран 1: форма -->
+    <section id="screen-form" class="screen active" aria-labelledby="h-hero">
+      <div class="ornament" id="ornament" aria-hidden="true"></div>
+      <div class="hero">
+        <div class="hero-copy">
+          <h1 id="h-hero">Небо в тот самый день</h1>
+          <p class="lead">Дата, время и город рождения — и вы увидите, как стояли планеты, когда вы появились на свет.</p>
+        </div>
+
+        <form id="birth-form" class="panel" novalidate>
+          <div class="row2">
+            <label class="field"><span>Дата рождения</span>
+              <input type="date" id="date" required>
+              <span class="err" id="err-date" role="alert"></span>
+            </label>
+            <label class="field"><span>Время рождения</span>
+              <input type="time" id="time" required>
+              <span class="err" id="err-time" role="alert"></span>
+            </label>
+          </div>
+          <label class="check">
+            <input type="checkbox" id="no-time">
+            <span>Не знаю время рождения</span>
+          </label>
+          <label class="field"><span>Город рождения</span>
+            <input type="text" id="city" placeholder="Например, Уфа" autocomplete="off" required>
+            <span class="err" id="err-city" role="alert"></span>
+          </label>
+          <div id="city-choices" class="choices" hidden role="group" aria-label="Уточните город"></div>
+          <button type="submit" class="btn" id="btn-submit">Построить карту</button>
+          <p class="privacy">Расчёт идёт в вашем браузере. Наружу уходит только название города — в сервис поиска Open-Meteo.</p>
+        </form>
+      </div>
     </section>
 
-    <!-- ЭКРАН 2: загрузка -->
-    <section id="screen-loading" class="screen" aria-live="polite">
-      <div class="loader" aria-hidden="true">☉</div>
-      <p class="lead">Сверяем положение планет…</p>
-    </section>
+    <!-- Экран 2: результат -->
+    <section id="screen-result" class="screen" aria-labelledby="result-title">
+      <div class="result-grid">
+        <div class="result-head">
+          <h2 id="result-title" tabindex="-1"></h2>
+          <p id="result-sub"></p>
+        </div>
 
-    <!-- ЭКРАН 3: результат -->
-    <section id="screen-result" class="screen">
-      <h2 id="result-title">Ваша карта</h2>
-      <p class="lead" id="result-sub"></p>
+        <div class="big3" id="big3"></div>
 
-      <figure class="glass wheel-box" id="wheel-box"></figure>
-      <p class="lead wheel-note" id="wheel-note"></p>
+        <div class="wheel-col">
+          <div class="wheel-frame" id="wheel-box"></div>
+          <p class="wheel-note" id="wheel-note"></p>
+        </div>
 
-      <p class="lead intro">Карта — это снимок неба в момент вашего рождения. Каждая планета отвечает за свою сторону жизни, знак показывает, как именно она проявляется, а дом — в какой сфере жизни.</p>
-      <div class="cards" id="cards"></div>
+        <div class="read-col">
+          <div class="tabs" role="tablist" aria-label="Разделы карты">
+            <button type="button" role="tab" id="tab-btn-planets" aria-controls="panel-planets" aria-selected="true">Планеты</button>
+            <button type="button" role="tab" id="tab-btn-aspects" aria-controls="panel-aspects" aria-selected="false" tabindex="-1">Аспекты</button>
+            <button type="button" role="tab" id="tab-btn-today" aria-controls="panel-today" aria-selected="false" tabindex="-1">Сегодня</button>
+          </div>
 
-      <details class="glass aspects">
-        <summary>Аспекты между планетами (<span id="aspects-count">0</span>)</summary>
-        <p class="legend">
-          <span class="k conj">☌ соединение</span> — две темы работают как одна;
-          <span class="k soft">△ тригон и ⚹ секстиль</span> — лёгкие, помогающие связи;
-          <span class="k hard">□ квадрат и ☍ оппозиция</span> — напряжение, которое подталкивает к росту.
-        </p>
-        <ul id="aspects-list"></ul>
-      </details>
+          <div id="panel-planets" role="tabpanel" aria-labelledby="tab-btn-planets">
+            <p class="tab-intro">Планета отвечает за сторону жизни, знак — за то, как она проявляется, дом — за область, где это происходит. Нажмите на строку, чтобы прочитать подробнее.</p>
+            <div id="planets-list"></div>
+          </div>
 
-      <button type="button" class="btn" id="btn-horoscope">
-        <i class="fa-regular fa-moon"></i> Гороскоп на сегодня
-      </button>
+          <div id="panel-aspects" role="tabpanel" aria-labelledby="tab-btn-aspects" hidden>
+            <ul class="legend">
+              <li class="conj"><svg class="aic" viewBox="0 0 18 18" aria-hidden="true"><circle cx="6.5" cy="11.5" r="3.4"/><path d="M9 9l5.5-5.5"/></svg>Соединение — две темы работают как одна</li>
+              <li class="soft"><svg class="aic" viewBox="0 0 18 18" aria-hidden="true"><path d="M9 3l6.6 11.5H2.4z"/></svg>Тригон и секстиль — лёгкие, помогающие связи</li>
+              <li class="hard"><svg class="aic" viewBox="0 0 18 18" aria-hidden="true"><rect x="3.5" y="3.5" width="11" height="11"/></svg>Квадрат и оппозиция — напряжение, которое подталкивает к росту</li>
+            </ul>
+            <ul id="aspects-list" class="alist"></ul>
+          </div>
 
-      <article id="horoscope" class="glass horoscope" hidden></article>
-
-      <p class="note">Астрология — способ посмотреть на себя со стороны, а не научный прогноз. Относитесь к описаниям как к поводу для размышления.</p>
-      <button type="button" class="link" id="btn-back">Ввести другие данные</button>
+          <div id="panel-today" role="tabpanel" aria-labelledby="tab-btn-today" hidden>
+            <article id="horoscope"></article>
+          </div>
+        </div>
+      </div>
     </section>
   </main>
+
+  <footer class="foot">
+    <p>Астрология — способ посмотреть на себя со стороны, а не научный прогноз. Относитесь к описаниям как к поводу для размышления.</p>
+  </footer>
 
   <script src="script.js"></script>
 </body>

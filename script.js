@@ -272,7 +272,7 @@ function computeChart({ date, time, unknownTime, place }) {
   const planets = keys.map((k) => {
     const lon = natal[k], si = Math.floor(lon / 30);
     const p = {
-      key: k, ...BODIES[k], lon, sign: SIGNS[si], signSym: SIGN_SYM[si], kw: KEYWORDS[si],
+      key: k, ...BODIES[k], lon, si, sign: SIGNS[si], signSym: SIGN_SYM[si], kw: KEYWORDS[si],
       deg: Math.floor(lon % 30), min: Math.floor(((lon % 30) % 1) * 60), retro: !!retro[k],
       house: cusps && k !== 'asc' ? houseOf(lon, cusps) : null
     };
@@ -290,6 +290,7 @@ function computeChart({ date, time, unknownTime, place }) {
 
   return {
     place: placeLabel(place), tz: place.timezone, planets, natal,
+    birth: { date, time: unknownTime ? null : time },
     timeKnown: !unknownTime, asc, mc, cusps, system,
     aspects: natalAspects(planets)
   };
@@ -331,20 +332,36 @@ function horoscopeFor(data, nowTs) {
     mood: `Луна сегодня в знаке «${SIGNS[moonIdx]}» — общий фон дня: ${KEYWORDS[moonIdx]}.`,
     items: found.slice(0, 3).map(({ t, n, a }) => ({
       text: `${BODIES[t].name} (${BODIES[t].topic}) ${a.verb} вашу сферу: ${BODIES[n].topic}.`,
-      label: `${a.sym} ${a.name} с вашим объектом «${BODIES[n].name}»`,
+      label: `${a.name} с «${BODIES[n].name}» в вашей карте`,
       tip: a.soft ? 'Хороший момент действовать и просить о нужном.' : 'Не торопитесь и не спорьте по мелочам.'
     }))
   };
 }
 
+/* ===== Оформление: стихии, значки аспектов ===== */
+const ELEM = ['fire', 'earth', 'air', 'water'];
+const elOf = (si) => ELEM[si % 4];
+
+const ASP_ICON = {
+  'соединение': '<circle cx="6.5" cy="11.5" r="3.4"/><path d="M9 9l5.5-5.5"/>',
+  'секстиль':   '<path d="M9 2.5v13M3.4 5.8l11.2 6.4M14.6 5.8L3.4 12.2"/>',
+  'квадрат':    '<rect x="3.5" y="3.5" width="11" height="11"/>',
+  'тригон':     '<path d="M9 3l6.6 11.5H2.4z"/>',
+  'оппозиция':  '<circle cx="5" cy="13" r="2.8"/><circle cx="13" cy="5" r="2.8"/><path d="M7 11l4-4"/>'
+};
+const aspIcon = (name) => `<svg class="aic" viewBox="0 0 18 18" aria-hidden="true">${ASP_ICON[name]}</svg>`;
+
+// Общая геометрия: угол 0° зодиака (или Асцендент) лежит слева, зодиак идёт против часовой стрелки
+function polar(C, r, lon, ref) {
+  const a = (180 + lon - ref) * R;
+  return [C + r * Math.cos(a), C - r * Math.sin(a)];
+}
+
 /* ===== Колесо карты (SVG) ===== */
 function wheelSVG(data) {
-  const S = 700, C = S / 2, R1 = 300, R2 = 258, R3 = 120;
-  const ref = data.timeKnown ? data.asc : 0;                 // Асцендент слева; без времени — Овен слева
-  const pt = (r, lon) => {
-    const a = (180 + lon - ref) * R;
-    return [C + r * Math.cos(a), C - r * Math.sin(a)];
-  };
+  const C = 350, R1 = 300, R2 = 258, R3 = 120, RS = 279;
+  const ref = data.timeKnown ? data.asc : 0;
+  const pt = (r, lon) => polar(C, r, lon, ref);
   const f = (n) => n.toFixed(1);
   const line = (r1, l1, r2, l2, cls) => {
     const [x1, y1] = pt(r1, l1), [x2, y2] = pt(r2, l2);
@@ -354,27 +371,29 @@ function wheelSVG(data) {
     const [x, y] = pt(r, lon);
     return `<text class="${cls}" x="${f(x)}" y="${f(y)}">${str}</text>`;
   };
-  let s = `<svg viewBox="0 0 ${S} ${S}" class="wheel" role="img" aria-label="Колесо натальной карты: знаки зодиака, дома, планеты и аспекты">`;
+  let s = `<svg viewBox="0 0 700 700" class="wheel" role="img" aria-label="Колесо натальной карты: знаки зодиака, дома, планеты и аспекты">`;
+  s += `<defs><radialGradient id="wcore"><stop offset="0" stop-color="#f2b6cb" stop-opacity=".13"/><stop offset="1" stop-color="#f2b6cb" stop-opacity="0"/></radialGradient></defs>`;
+  s += `<circle cx="${C}" cy="${C}" r="${R3}" fill="url(#wcore)"/>`;
 
-  // Знаки зодиака
+  // Знаки зодиака, окрашены по стихиям
   for (let i = 0; i < 12; i++) {
-    const a = i * 30, b = a + 30;
+    const a = i * 30, b = a + 30, el = elOf(i);
     const [ox1, oy1] = pt(R1, a), [ox2, oy2] = pt(R1, b), [ix1, iy1] = pt(R2, a), [ix2, iy2] = pt(R2, b);
-    s += `<path class="sec sec${i % 2}" d="M${f(ox1)} ${f(oy1)} A${R1} ${R1} 0 0 0 ${f(ox2)} ${f(oy2)} L${f(ix2)} ${f(iy2)} A${R2} ${R2} 0 0 1 ${f(ix1)} ${f(iy1)}Z"><title>${SIGNS[i]}</title></path>`;
-    s += text((R1 + R2) / 2, a + 15, SIGN_SYM[i], 'zsign');
+    s += `<path class="sec ${el}" d="M${f(ox1)} ${f(oy1)} A${R1} ${R1} 0 0 0 ${f(ox2)} ${f(oy2)} L${f(ix2)} ${f(iy2)} A${R2} ${R2} 0 0 1 ${f(ix1)} ${f(iy1)}Z"><title>${SIGNS[i]}</title></path>`;
+    s += line(R1, a, R2, a, 'sdiv');
+    s += text(RS, a + 15, SIGN_SYM[i], `zsign ${el}`);
   }
-  s += `<circle class="ring" cx="${C}" cy="${C}" r="${R1}"/><circle class="ring" cx="${C}" cy="${C}" r="${R2}"/><circle class="ring" cx="${C}" cy="${C}" r="${R3}"/>`;
-  for (let l = 0; l < 360; l += 5) s += line(R2, l, R2 - (l % 10 === 0 ? 9 : 5), l, 'tick');
+  [R1, R2, R3].forEach((r, i) => { s += `<circle class="ring draw" pathLength="1" style="--i:${i}" cx="${C}" cy="${C}" r="${r}"/>`; });
+  for (let l = 0; l < 360; l += 5) if (l % 30) s += line(R2, l, R2 - (l % 10 === 0 ? 9 : 5), l, 'tick');
 
   // Дома и углы
   if (data.cusps) {
     data.cusps.forEach((c, i) => {
       s += line(R3, c, R2, c, i % 3 === 0 ? 'cusp main' : 'cusp');
-      const mid = c + norm(data.cusps[(i + 1) % 12] - c) / 2;
-      s += text(R3 + 16, mid, i + 1, 'hnum');
+      s += text(R3 + 17, c + norm(data.cusps[(i + 1) % 12] - c) / 2, i + 1, 'hnum');
     });
     [['Asc', data.cusps[0]], ['IC', data.cusps[3]], ['Dsc', data.cusps[6]], ['MC', data.cusps[9]]]
-      .forEach(([n, l]) => { s += text(R1 + 22, l, n, 'angle'); });
+      .forEach(([n, l]) => { s += text(R1 + 24, l, n, 'angle'); });
   }
 
   // Планеты: расталкиваем, чтобы значки не налезали друг на друга
@@ -390,37 +409,80 @@ function wheelSVG(data) {
     if (!moved) break;
   }
 
-  // Аспекты рисуем под планетами
-  for (const x of data.aspects) {
-    if (x.a.key === 'asc' || x.b.key === 'asc') continue;
+  // Аспекты — под планетами; толщина линии растёт с точностью аспекта
+  data.aspects.forEach((x, i) => {
+    if (x.a.key === 'asc' || x.b.key === 'asc') return;
     const [x1, y1] = pt(R3, x.a.lon), [x2, y2] = pt(R3, x.b.lon);
-    s += `<line class="asp ${x.asp.cls}" x1="${f(x1)}" y1="${f(y1)}" x2="${f(x2)}" y2="${f(y2)}"><title>${x.a.name} ${x.asp.sym} ${x.b.name}: ${x.asp.name}</title></line>`;
-  }
-  for (const { p, d } of items) {
-    s += line(R2, p.lon, R2 - 7, p.lon, 'ptick');
-    if (Math.abs(d - p.lon) > 0.5) s += line(R2 - 7, p.lon, 238, d, 'lead');
-    const cls = p.approx || (p.key === 'moon' && !data.timeKnown) ? 'pl approx' : 'pl';
-    s += `<g><title>${p.name} в знаке «${p.sign}», ${p.deg}°${p.retro ? ' (ретроградный)' : ''}</title>`
-      + text(222, d, p.sym + '\uFE0E', cls)
-      + text(194, d, `${p.deg}°${p.retro ? '℞' : ''}`, 'pdeg') + '</g>';
-  }
+    const w = (0.9 + (1 - x.orb / x.asp.orb) * 1.5).toFixed(2);
+    s += `<line class="asp ${x.asp.cls}" data-a="${x.a.key}" data-b="${x.b.key}" style="stroke-width:${w};--i:${i}" x1="${f(x1)}" y1="${f(y1)}" x2="${f(x2)}" y2="${f(y2)}"><title>${x.a.name} — ${x.b.name}: ${x.asp.name}</title></line>`;
+  });
+  items.forEach(({ p, d }, i) => {
+    const [gx, gy] = pt(222, d), [hx, hy] = pt(R2, p.lon);
+    const faint = p.approx || (p.key === 'moon' && !data.timeKnown);
+    s += `<g class="pg${faint ? ' faint' : ''}" data-k="${p.key}" style="--i:${i}"><title>${p.name}, ${p.sign} ${p.deg}°${p.retro ? ', ретроградный' : ''}</title>`
+      + `<circle class="pdot" cx="${f(hx)}" cy="${f(hy)}" r="2.4"/>`
+      + (Math.abs(d - p.lon) > 0.5 ? line(R2 - 4, p.lon, 240, d, 'lead') : '')
+      + `<circle class="halo" cx="${f(gx)}" cy="${f(gy)}" r="19"/>`
+      + text(222, d, p.sym + '\uFE0E', 'pl')
+      + text(194, d, `${p.deg}°${p.retro ? ' R' : ''}`, 'pdeg') + '</g>';
+  });
   return s + '</svg>';
 }
 
-/* ===== Экраны и форма (работает только в браузере) ===== */
+// Декоративное колесо для первого экрана: линии «рисуются» один раз при открытии
+function ornamentSVG() {
+  const C = 300, pt = (r, l) => polar(C, r, l, 0), f = (n) => n.toFixed(1);
+  let s = '<svg viewBox="0 0 600 600" class="orn">';
+  [292, 252, 176, 104].forEach((r, i) => { s += `<circle class="oring draw" pathLength="1" style="--i:${i}" cx="${C}" cy="${C}" r="${r}"/>`; });
+  for (let i = 0; i < 12; i++) {
+    const [x1, y1] = pt(252, i * 30), [x2, y2] = pt(292, i * 30), [gx, gy] = pt(272, i * 30 + 15);
+    s += `<line class="odiv" x1="${f(x1)}" y1="${f(y1)}" x2="${f(x2)}" y2="${f(y2)}"/>`;
+    s += `<text class="ozs ${elOf(i)}" x="${f(gx)}" y="${f(gy)}">${SIGN_SYM[i]}</text>`;
+  }
+  for (let l = 0; l < 360; l += 5) {
+    if (l % 30 === 0) continue;
+    const [x1, y1] = pt(252, l), [x2, y2] = pt(252 - (l % 10 === 0 ? 9 : 5), l);
+    s += `<line class="otick" x1="${f(x1)}" y1="${f(y1)}" x2="${f(x2)}" y2="${f(y2)}"/>`;
+  }
+  [[18, 138, 'soft'], [78, 258, 'hard'], [198, 318, 'soft'], [48, 168, 'conj'], [108, 288, 'soft'], [228, 348, 'hard']].forEach(([a, b, c], i) => {
+    const [x1, y1] = pt(104, a), [x2, y2] = pt(104, b);
+    s += `<line class="oasp draw ${c}" pathLength="1" style="--i:${i + 4}" x1="${f(x1)}" y1="${f(y1)}" x2="${f(x2)}" y2="${f(y2)}"/>`;
+  });
+  return s + '</svg>';
+}
+
+/* ===== Интерфейс (работает только в браузере) ===== */
 if (typeof document !== 'undefined') {
   const pad = (n) => String(n).padStart(2, '0');
   const todayISO = () => { const n = new Date(); return `${n.getFullYear()}-${pad(n.getMonth() + 1)}-${pad(n.getDate())}`; };
-  let current = null; // последняя рассчитанная карта
+  const ru1 = (x) => x.toFixed(1).replace('.', ',');
+  const fmtDate = (iso) => {
+    const [y, m, d] = iso.split('-').map(Number);
+    return new Date(y, m - 1, d).toLocaleDateString('ru-RU', { day: 'numeric', month: 'long', year: 'numeric' }).replace(/\s?г\.$/, '');
+  };
+  const glyph = (p) => (p.key === 'asc' ? '<span class="g asc">Asc</span>' : `<span class="g">${p.sym}\uFE0E</span>`);
+  const signMark = (p) => `<span class="g sg ${elOf(p.si)}">${p.signSym}</span>`;
+  const CHEVRON = '<svg class="chev" viewBox="0 0 12 12" aria-hidden="true"><path d="M2.5 4.5 6 8l3.5-3.5"/></svg>';
 
-  const show = (id) => {
+  let current = null, horoscopeAt = 0;
+  const wheelSvg = () => $('wheel-box').querySelector('svg');
+
+  /* --- экраны --- */
+  function show(id) {
     document.querySelectorAll('.screen').forEach((s) => s.classList.remove('active'));
     $(id).classList.add('active');
+    $('btn-new').hidden = id !== 'screen-result';
     window.scrollTo({ top: 0, behavior: 'smooth' });
-  };
+  }
   const setErr = (id, msg) => {
     $(id).classList.toggle('invalid', !!msg);
     $('err-' + id).textContent = msg || '';
+  };
+  const setBusy = (busy) => {
+    const b = $('btn-submit');
+    b.disabled = busy;
+    b.setAttribute('aria-busy', busy);
+    b.textContent = busy ? 'Считаем…' : 'Построить карту';
   };
   const readForm = () => ({ date: $('date').value, time: $('time').value, city: $('city').value, unknownTime: $('no-time').checked });
 
@@ -435,74 +497,143 @@ if (typeof document !== 'undefined') {
     return checks.every(([, msg]) => !msg);
   }
 
-  const glyph = (p) => (p.key === 'asc' ? '' : p.sym + '\uFE0E ');
+  /* --- подсветка планеты или аспекта на колесе --- */
+  function highlight(a, b) {
+    const svg = wheelSvg();
+    if (!svg) return;
+    svg.querySelectorAll('.on').forEach((n) => n.classList.remove('on'));
+    svg.classList.toggle('hl', !!a);
+    if (!a) return;
+    svg.querySelectorAll('.pg').forEach((n) => { if (n.dataset.k === a || n.dataset.k === b) n.classList.add('on'); });
+    svg.querySelectorAll('.asp').forEach((n) => {
+      const hit = b ? (n.dataset.a === a && n.dataset.b === b) || (n.dataset.a === b && n.dataset.b === a) : n.dataset.a === a || n.dataset.b === a;
+      if (hit) n.classList.add('on');
+    });
+  }
+  function bindHighlight(root) {
+    root.querySelectorAll('[data-hl]').forEach((row) => {
+      const [a, b] = row.dataset.hl.split(',');
+      const on = () => highlight(a, b), off = () => highlight(null);
+      row.addEventListener('mouseenter', on); row.addEventListener('mouseleave', off);
+      row.addEventListener('focusin', on);    row.addEventListener('focusout', off);
+    });
+  }
 
+  /* --- отрисовка результата --- */
   function renderResult(data) {
-    const moon = data.planets.find((p) => p.key === 'moon'), sun = data.planets[0], asc = data.planets.find((p) => p.key === 'asc');
-    $('result-sub').textContent = `${data.place} · Солнце в знаке «${sun.sign}», Луна в знаке «${moon.sign}»` + (asc ? `, Асцендент в знаке «${asc.sign}»` : '');
+    const b = data.birth;
+    $('result-title').textContent = fmtDate(b.date);
+    $('result-sub').textContent = `${b.time ? 'в ' + b.time : 'время неизвестно'}, ${data.place}`;
+
+    // «Большая тройка»: Солнце, Луна, Асцендент
+    const P = (k) => data.planets.find((p) => p.key === k);
+    const tile = (p, label) => `
+      <div class="b3">${glyph(p)}<div><span class="b3-k">${label}</span><strong>${p.sign}</strong><span class="b3-d">${p.deg}°${String(p.min).padStart(2, '0')}′</span></div></div>`;
+    $('big3').innerHTML = tile(P('sun'), 'Солнце, характер') + tile(P('moon'), 'Луна, эмоции')
+      + (P('asc') ? tile(P('asc'), 'Асцендент, первое впечатление')
+        : '<div class="b3 empty"><span class="g asc">Asc</span><div><span class="b3-k">Асцендент, первое впечатление</span><strong>нужно время</strong><span class="b3-d">укажите его, чтобы увидеть</span></div></div>');
+
     $('wheel-box').innerHTML = wheelSVG(data);
     $('wheel-note').textContent = data.timeKnown
-      ? `Дома: ${data.system}. Асцендент слева, МС сверху — так принято читать карту. Наведите курсор на планету или линию, чтобы увидеть подпись.`
-      : 'Время рождения неизвестно: карта построена на полдень, поэтому Асцендент и дома не показаны, а положение Луны приблизительно.';
+      ? `Дома: ${data.system}. Асцендент слева, МС сверху. Наведите курсор на планету или аспект в списке — она подсветится на колесе.`
+      : 'Время рождения неизвестно, поэтому карта построена на полдень: Асцендент и дома не показаны, а положение Луны приблизительно.';
 
-    $('cards').innerHTML = data.planets.map((p, i) => `
-      <div class="card" style="animation-delay:${i * 70}ms">
-        <div class="sym">${p.sym}</div>
-        <div class="planet">${p.name}${p.retro ? ' · ретроградный' : ''}</div>
-        <div class="sign">${p.signSym} ${p.sign}, ${p.deg}°${String(p.min).padStart(2, '0')}′</div>
-        ${p.house ? `<div class="house">${p.house}-й дом: ${HOUSE_TOPICS[p.house - 1]}</div>` : ''}
-        <p class="what">${p.role}</p>
-        <p class="how">В знаке «${p.sign}» это проявляется так: ${p.kw}.</p>
-        ${p.gen ? '<p class="how">Знак общий для всех, кто родился в эти годы — личное здесь говорят дом и аспекты.</p>' : ''}
-        ${p.note ? `<p class="how warn">${p.note}</p>` : ''}
-      </div>`).join('');
+    // Планеты
+    $('planets-list').innerHTML = data.planets.map((p) => `
+      <details class="prow" data-hl="${p.key}">
+        <summary>
+          ${glyph(p)}
+          <span class="pmain"><span class="pname">${p.name}${p.retro ? '<em class="retro" title="Ретроградный: кажется, что идёт назад">R</em>' : ''}</span>
+            <span class="psub">${signMark(p)} ${p.sign}, ${p.deg}°${String(p.min).padStart(2, '0')}′${p.house ? `, дом ${p.house}` : ''}</span></span>
+          ${CHEVRON}
+        </summary>
+        <div class="pbody">
+          <p>${p.role}</p>
+          <p class="muted">В знаке «${p.sign}» это проявляется так: ${p.kw}.</p>
+          ${p.house ? `<p class="muted">Дом ${p.house} — ${HOUSE_TOPICS[p.house - 1]}.</p>` : ''}
+          ${p.gen ? '<p class="muted">Знак общий для всех, кто родился в эти годы — личное здесь говорят дом и аспекты.</p>' : ''}
+          ${p.note ? `<p class="note-gold">${p.note}</p>` : ''}
+        </div>
+      </details>`).join('');
 
-    $('aspects-count').textContent = data.aspects.length;
+    // Аспекты
     $('aspects-list').innerHTML = data.aspects.length
-      ? data.aspects.map((x) => `<li class="asp-row ${x.asp.cls}"><span>${glyph(x.a)}${x.a.name}</span><span class="as">${x.asp.sym}\uFE0E</span><span>${glyph(x.b)}${x.b.name}</span><span class="m">${x.asp.name}, ${x.orb.toFixed(1)}°</span></li>`).join('')
-      : '<li class="asp-row">Явных аспектов нет.</li>';
+      ? data.aspects.map((x) => `
+        <li class="arow ${x.asp.cls}" tabindex="0" data-hl="${x.a.key},${x.b.key}">
+          <span class="an">${glyph(x.a)}${x.a.name}</span>
+          <span class="ai">${aspIcon(x.asp.name)}</span>
+          <span class="an">${glyph(x.b)}${x.b.name}</span>
+          <span class="am">${x.asp.name}, орбис ${ru1(x.orb)}°</span>
+        </li>`).join('')
+      : '<li class="arow none">Явных аспектов между планетами нет.</li>';
 
-    $('horoscope').hidden = true;
+    bindHighlight($('planets-list')); bindHighlight($('aspects-list'));
+    $('horoscope').innerHTML = '';
+    horoscopeAt = 0;
+    selectTab($('tab-btn-planets'));
   }
 
-  function renderHoroscope() {
-    const h = horoscopeFor(current, Date.now());
+  /* --- гороскоп: считается при открытии вкладки, небо меняется --- */
+  function renderHoroscope(force) {
+    if (!current || (!force && Date.now() - horoscopeAt < 5 * 60 * 1000)) return;
+    horoscopeAt = Date.now();
+    const h = horoscopeFor(current, horoscopeAt);
     $('horoscope').innerHTML = `
-      <h3>Гороскоп на ${h.when}</h3>
-      <p>${h.mood}</p>
+      <h3>Небо сейчас</h3>
+      <p class="when">${h.when}</p>
+      <blockquote>${h.mood}</blockquote>
       ${h.items.length
-        ? h.items.map((i) => `<p>${i.text}<br><span class="meta">${i.label}</span><br>${i.tip}</p>`).join('')
-        : '<p>Сейчас нет особо сильных связей с вашей картой — спокойное время, действуйте в своём ритме.</p>'}
-      <p class="meta">Рассчитано на момент нажатия кнопки. Луна меняет аспекты за считаные часы — нажмите снова позже, и картина обновится.</p>`;
-    $('horoscope').hidden = false;
-    $('horoscope').scrollIntoView({ behavior: 'smooth', block: 'center' });
+        ? h.items.map((i) => `<div class="hitem"><p>${i.text}</p><p class="muted">${i.label[0].toUpperCase() + i.label.slice(1)}. ${i.tip}</p></div>`).join('')
+        : '<div class="hitem"><p>Сейчас нет сильных связей с вашей картой — спокойное время, действуйте в своём ритме.</p></div>'}
+      <p class="muted small">Рассчитано на момент открытия вкладки. Луна меняет аспекты за считаные часы.</p>
+      <button type="button" class="textbtn" id="btn-refresh">Обновить расчёт</button>`;
+    $('btn-refresh').addEventListener('click', () => renderHoroscope(true));
   }
 
-  async function finish(place) {
-    show('screen-loading');
+  /* --- вкладки --- */
+  const tabs = [...document.querySelectorAll('[role="tab"]')];
+  function selectTab(tab) {
+    tabs.forEach((t) => {
+      const on = t === tab;
+      t.setAttribute('aria-selected', on);
+      t.tabIndex = on ? 0 : -1;
+      $(t.getAttribute('aria-controls')).hidden = !on;
+    });
+    if (tab.id === 'tab-btn-today') renderHoroscope(false);
+    if (tab.id !== 'tab-btn-planets') highlight(null);
+  }
+  tabs.forEach((t, i) => {
+    t.addEventListener('click', () => selectTab(t));
+    t.addEventListener('keydown', (e) => {
+      const d = e.key === 'ArrowRight' ? 1 : e.key === 'ArrowLeft' ? -1 : 0;
+      if (!d) return;
+      const next = tabs[(i + d + tabs.length) % tabs.length];
+      next.focus(); selectTab(next); e.preventDefault();
+    });
+  });
+
+  /* --- отправка формы --- */
+  function finish(place) {
     try {
       current = computeChart({ ...readForm(), place });
       renderResult(current);
       show('screen-result');
+      $('result-title').focus({ preventScroll: true });
     } catch (err) {
-      show('screen-form');
       if (err.message === 'future') setErr('date', 'Этот момент ещё не наступил');
       else setErr('city', 'Не удалось построить карту. Попробуйте ещё раз.');
     }
+    setBusy(false);
   }
 
   function showChoices(places) {
     const box = $('city-choices');
-    box.innerHTML = '';
-    const hint = document.createElement('p');
-    hint.className = 'choices-hint';
-    hint.textContent = 'Нашлось несколько мест — выберите нужное:';
-    box.appendChild(hint);
+    box.innerHTML = '<p class="choices-hint">Нашлось несколько мест — выберите нужное</p>';
     places.forEach((p) => {
       const b = document.createElement('button');
       b.type = 'button'; b.className = 'choice';
       b.textContent = placeLabel(p);
-      b.addEventListener('click', () => { box.hidden = true; finish(p); });
+      b.addEventListener('click', () => { box.hidden = true; setBusy(true); finish(p); });
       box.appendChild(b);
     });
     box.hidden = false;
@@ -513,29 +644,28 @@ if (typeof document !== 'undefined') {
     e.preventDefault();
     $('city-choices').hidden = true;
     if (!validate()) return;                              // Клик 1
-    show('screen-loading');
+    setBusy(true);
     try {
       const places = await geocode($('city').value);
       if (places.length === 1) return finish(places[0]);
-      show('screen-form');
       showChoices(places);
     } catch (err) {
-      show('screen-form');
       setErr('city', err.message === 'nocity'
         ? 'Город не найден — проверьте написание'
         : 'Не удалось найти город. Проверьте интернет и попробуйте ещё раз.');
     }
+    setBusy(false);
   });
-  $('city').addEventListener('input', () => { $('city-choices').hidden = true; });
+  $('city').addEventListener('input', () => { $('city-choices').hidden = true; setErr('city', ''); });
   $('no-time').addEventListener('change', () => {
     const off = $('no-time').checked;
     $('time').disabled = off;
     if (off) { $('time').value = ''; setErr('time', ''); }
   });
-  $('btn-horoscope').addEventListener('click', renderHoroscope);  // Клик 2
-  $('btn-back').addEventListener('click', () => show('screen-form'));
+  $('btn-new').addEventListener('click', () => show('screen-form'));
+  $('ornament').innerHTML = ornamentSVG();
 }
 
 if (typeof module !== 'undefined') {
-  module.exports = { sky, ascendant, midheaven, buildHouses, houseOf, ramcOf, obliquity, retroFlags, computeChart, horoscopeFor, wheelSVG, localToUTC, julian, dayNumber, natalAspects };
+  module.exports = { sky, ascendant, midheaven, buildHouses, houseOf, ramcOf, obliquity, retroFlags, computeChart, horoscopeFor, wheelSVG, ornamentSVG, localToUTC, julian, dayNumber, natalAspects };
 }
