@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://evavien.github.io/natal-chart/sitemap.xml
