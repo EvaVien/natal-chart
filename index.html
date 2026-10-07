@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Натальная карта и гороскоп на сегодня</title>
-  <meta name="description" content="Узнайте натальную карту и гороскоп на день за два клика.">
+  <meta name="description" content="Натальная карта с колесом, домами и аспектами и гороскоп на день — прямо в браузере.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500&family=Playfair+Display:ital,wght@0,500;1,400&display=swap" rel="stylesheet">
@@ -26,14 +26,19 @@
           <input type="date" id="date" required>
           <span class="err" id="err-date"></span>
         </label>
-        <label>Время рождения <small>(чем точнее, тем точнее Луна и Асцендент)</small>
+        <label>Время рождения <small>(чем точнее, тем точнее Луна, Асцендент и дома)</small>
           <input type="time" id="time" required>
           <span class="err" id="err-time"></span>
+        </label>
+        <label class="check">
+          <input type="checkbox" id="no-time">
+          <span>Не знаю время рождения</span>
         </label>
         <label>Город рождения
           <input type="text" id="city" placeholder="Например, Уфа" autocomplete="off" required>
           <span class="err" id="err-city"></span>
         </label>
+        <div id="city-choices" class="choices" hidden role="group" aria-label="Уточните город"></div>
         <button type="submit" class="btn">Рассчитать натальную карту</button>
       </form>
     </section>
@@ -49,8 +54,21 @@
       <h2 id="result-title">Ваша карта</h2>
       <p class="lead" id="result-sub"></p>
 
-      <p class="lead intro">Карта — это снимок неба в момент вашего рождения. Каждая планета отвечает за свою сторону жизни, а знак показывает, как именно она у вас проявляется.</p>
+      <figure class="glass wheel-box" id="wheel-box"></figure>
+      <p class="lead wheel-note" id="wheel-note"></p>
+
+      <p class="lead intro">Карта — это снимок неба в момент вашего рождения. Каждая планета отвечает за свою сторону жизни, знак показывает, как именно она проявляется, а дом — в какой сфере жизни.</p>
       <div class="cards" id="cards"></div>
+
+      <details class="glass aspects">
+        <summary>Аспекты между планетами (<span id="aspects-count">0</span>)</summary>
+        <p class="legend">
+          <span class="k conj">☌ соединение</span> — две темы работают как одна;
+          <span class="k soft">△ тригон и ⚹ секстиль</span> — лёгкие, помогающие связи;
+          <span class="k hard">□ квадрат и ☍ оппозиция</span> — напряжение, которое подталкивает к росту.
+        </p>
+        <ul id="aspects-list"></ul>
+      </details>
 
       <button type="button" class="btn" id="btn-horoscope">
         <i class="fa-regular fa-moon"></i> Гороскоп на сегодня
