@@ -5,16 +5,27 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#0e0b16">
   <title>Эфемерида — натальная карта</title>
-  <meta name="description" content="Натальная карта с колесом, домами и аспектами. Расчёт в браузере, без отправки личных данных на сервер.">
+  <meta name="description" content="Натальная карта с колесом, домами и аспектами. Расчёт в вашем браузере: дата и время рождения никуда не отправляются.">
   
   <!-- SEO / Social -->
   <link rel="canonical" href="https://evavien.github.io/natal-chart/">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Эфемерида">
+  <meta property="og:locale" content="ru_RU">
+  <meta property="og:url" content="https://evavien.github.io/natal-chart/">
   <meta property="og:title" content="Эфемерида — натальная карта">
   <meta property="og:description" content="Узнайте положение планет, домов и аспектов на момент рождения. Всё считается локально в вашем браузере.">
-  <meta property="og:image" content="https://evavien.github.io/natal-chart/social-preview.png">
-  <meta property="og:type" content="website">
+  <meta property="og:image" content="https://evavien.github.io/natal-chart/assets/social-preview.png">
+  <meta property="og:image:type" content="image/png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="Натальное колесо с знаками зодиака и надписью «Небо в тот самый день» на тёмном фоне">
   <meta name="twitter:card" content="summary_large_image">
-  
+  <meta name="twitter:title" content="Эфемерида — натальная карта">
+  <meta name="twitter:description" content="Положение планет, дома и аспекты на момент рождения. Расчёт в браузере: дата и время рождения никуда не отправляются.">
+  <meta name="twitter:image" content="https://evavien.github.io/natal-chart/assets/social-preview.png">
+  <meta name="twitter:image:alt" content="Натальное колесо с знаками зодиака и надписью «Небо в тот самый день» на тёмном фоне">
+
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%230e0b16'/%3E%3Ccircle cx='16' cy='16' r='9' fill='none' stroke='%23f2b6cb' stroke-width='1.6'/%3E%3Ccircle cx='16' cy='16' r='2' fill='%23f2b6cb'/%3E%3C/svg%3E">
   <link rel="stylesheet" href="style.css">
 </head>
@@ -28,9 +39,6 @@
       <span>Эфемерида</span>
     </a>
     <div class="header-actions" id="header-actions" hidden>
-      <button type="button" class="ghost" id="btn-save" title="Сохранить в браузере">Сохранить</button>
-      <button type="button" class="ghost" id="btn-share" title="Скопировать ссылку">Поделиться</button>
-      <button type="button" class="ghost" id="btn-print" title="Распечатать или сохранить как PDF">Печать</button>
       <button type="button" class="ghost" id="btn-new">Новая карта</button>
     </div>
   </header>
@@ -45,27 +53,45 @@
           <p class="lead">Дата, время и город рождения — и вы увидите, как стояли планеты, когда вы появились на свет.</p>
         </div>
 
-        <form id="birth-form" class="panel" novalidate>
+        <form id="birth-form" class="panel" novalidate aria-describedby="form-notice">
+          <p class="notice" id="form-notice" hidden></p>
+
+          <div class="saved" id="saved-box" hidden>
+            <p id="saved-text"></p>
+            <div class="saved-actions">
+              <button type="button" class="ghost" id="btn-restore">Восстановить последнюю карту</button>
+              <button type="button" class="textbtn" id="btn-forget">Удалить сохранённые данные</button>
+            </div>
+          </div>
+
           <div class="row2">
-            <label class="field"><span>Дата рождения</span>
-              <input type="date" id="date" required min="1900-01-01" autocomplete="bday" aria-describedby="err-date">
-              <span class="err" id="err-date" role="alert"></span>
-            </label>
-            <label class="field"><span>Время рождения</span>
-              <input type="time" id="time" required autocomplete="bday-time" aria-describedby="err-time">
-              <span class="err" id="err-time" role="alert"></span>
-            </label>
+            <div class="field">
+              <label for="date">Дата рождения</label>
+              <input type="date" id="date" name="date" required min="1900-01-01" autocomplete="bday" aria-describedby="err-date" aria-invalid="false">
+              <p class="err" id="err-date"></p>
+            </div>
+            <div class="field" id="field-time">
+              <label for="time">Время рождения</label>
+              <input type="time" id="time" name="time" required autocomplete="off" aria-describedby="err-time" aria-invalid="false">
+              <p class="err" id="err-time"></p>
+            </div>
           </div>
           <label class="check">
-            <input type="checkbox" id="no-time" autocomplete="off">
+            <input type="checkbox" id="no-time" autocomplete="off" aria-controls="time">
             <span>Не знаю время рождения</span>
           </label>
-          <label class="field"><span>Город рождения</span>
-            <input type="text" id="city" placeholder="Например, Уфа" autocomplete="address-level2" required aria-describedby="err-city">
-            <span class="err" id="err-city" role="alert"></span>
-          </label>
-          <div id="city-choices" class="choices" hidden role="group" aria-label="Уточните город"></div>
+          <p class="hint" id="time-hint" hidden>Время не задано сознательно. Карта будет построена на полдень: Асцендент, МС и дома определить нельзя, у Луны покажем только знак (или два знака, если в тот день она его сменила), а градусы остальных планет будут приблизительными.</p>
+          <div id="time-choices" class="choices" hidden role="group"></div>
+
+          <div class="field">
+            <label for="city">Город рождения</label>
+            <input type="text" id="city" name="city" placeholder="Например, Уфа" required maxlength="120" autocomplete="off" autocapitalize="words" spellcheck="false" inputmode="text" enterkeyhint="search" aria-describedby="err-city" aria-invalid="false">
+            <p class="err" id="err-city"></p>
+          </div>
+          <div id="city-choices" class="choices" hidden role="group"></div>
+
           <button type="submit" class="btn" id="btn-submit">Построить карту</button>
+          <p class="form-status" id="form-status" aria-hidden="true"></p>
           <p class="privacy">Расчёт идёт в вашем браузере. Наружу уходит только название города — в сервис поиска Open-Meteo.</p>
         </form>
       </div>
@@ -75,8 +101,23 @@
     <section id="screen-result" class="screen" aria-labelledby="result-title">
       <div class="result-grid">
         <div class="result-head">
+          <h1 class="visually-hidden">Натальная карта</h1>
           <h2 id="result-title" tabindex="-1"></h2>
           <p id="result-sub"></p>
+
+          <div class="result-tools" role="group" aria-label="Действия с картой">
+            <button type="button" class="ghost" id="btn-save">Сохранить карту</button>
+            <button type="button" class="ghost" id="btn-share" aria-expanded="false" aria-controls="share-panel">Поделиться картой</button>
+            <button type="button" class="ghost" id="btn-print">Распечатать или сохранить как PDF</button>
+            <button type="button" class="textbtn" id="btn-forget-result" hidden>Удалить сохранённые данные</button>
+          </div>
+          <p class="tool-msg" id="tool-msg"></p>
+          <div class="share-panel" id="share-panel" hidden>
+            <p><strong>Ссылка будет содержать дату, время и место рождения.</strong> Любой, у кого окажется эта ссылка, увидит эти данные. Ссылка создаётся только после нажатия кнопки ниже; на сервер мы ничего не отправляем.</p>
+            <button type="button" class="btn small" id="btn-copy-link">Скопировать ссылку</button>
+            <label class="visually-hidden" for="share-url">Ссылка на карту</label>
+            <input type="text" id="share-url" readonly hidden>
+          </div>
         </div>
 
         <div class="big3" id="big3"></div>
@@ -87,6 +128,7 @@
         </div>
 
         <div class="read-col">
+          <section class="certainty" id="certainty" hidden aria-live="off"></section>
           <div class="tabs" role="tablist" aria-label="Разделы карты">
             <button type="button" role="tab" id="tab-btn-planets" aria-controls="panel-planets" aria-selected="true">Планеты</button>
             <button type="button" role="tab" id="tab-btn-aspects" aria-controls="panel-aspects" aria-selected="false" tabindex="-1">Аспекты</button>
@@ -116,7 +158,7 @@
   </main>
 
   <footer class="foot">
-    <p>Астрология — способ посмотреть на себя со стороны, а не научный прогноз. Относитесь к описаниям как к поводу для размышления. Расчёт включает: Солнце, Луну, Меркурий, Венеру, Марс, Юпитер, Сатурн (внешние планеты не используются для сохранения производительности и фокуса на личной карте).</p>
+    <p>Астрология — способ посмотреть на себя со стороны, а не научный прогноз. Относитесь к описаниям как к поводу для размышления. В натальной карте рассчитаны Солнце, Луна и планеты от Меркурия до Плутона; в разделе «Сегодня» учитываются только Луна, Солнце, Меркурий, Венера, Марс, Юпитер и Сатурн.</p>
   </footer>
 
   <script src="script.js"></script>

@@ -1,0 +1,263 @@
+[
+ {
+  "tz": "Europe/Moscow",
+  "date": "2023-06-15",
+  "time": "12:00",
+  "note": "обычное время",
+  "status": "ok",
+  "candidates": [
+   1686819600000
+  ]
+ },
+ {
+  "tz": "Europe/Moscow",
+  "date": "2023-06-15",
+  "time": "00:00",
+  "note": "начало суток",
+  "status": "ok",
+  "candidates": [
+   1686776400000
+  ]
+ },
+ {
+  "tz": "Europe/Moscow",
+  "date": "2023-06-15",
+  "time": "23:59",
+  "note": "конец суток",
+  "status": "ok",
+  "candidates": [
+   1686862740000
+  ]
+ },
+ {
+  "tz": "Asia/Yekaterinburg",
+  "date": "1998-03-16",
+  "time": "12:00",
+  "note": "историческая зона",
+  "status": "ok",
+  "candidates": [
+   890031600000
+  ]
+ },
+ {
+  "tz": "Asia/Yekaterinburg",
+  "date": "2001-05-20",
+  "time": "09:30",
+  "note": "российское летнее время 2001",
+  "status": "ok",
+  "candidates": [
+   990329400000
+  ]
+ },
+ {
+  "tz": "America/New_York",
+  "date": "2023-03-12",
+  "time": "01:59",
+  "note": "за минуту до перевода вперёд",
+  "status": "ok",
+  "candidates": [
+   1678604340000
+  ]
+ },
+ {
+  "tz": "America/New_York",
+  "date": "2023-03-12",
+  "time": "02:00",
+  "note": "DST gap — начало",
+  "status": "invalid-local-time",
+  "candidates": []
+ },
+ {
+  "tz": "America/New_York",
+  "date": "2023-03-12",
+  "time": "02:30",
+  "note": "DST gap — середина",
+  "status": "invalid-local-time",
+  "candidates": []
+ },
+ {
+  "tz": "America/New_York",
+  "date": "2023-03-12",
+  "time": "03:00",
+  "note": "сразу после gap",
+  "status": "ok",
+  "candidates": [
+   1678604400000
+  ]
+ },
+ {
+  "tz": "America/New_York",
+  "date": "2023-11-05",
+  "time": "00:59",
+  "note": "до overlap",
+  "status": "ok",
+  "candidates": [
+   1699160340000
+  ]
+ },
+ {
+  "tz": "America/New_York",
+  "date": "2023-11-05",
+  "time": "01:00",
+  "note": "DST overlap — начало",
+  "status": "ambiguous-local-time",
+  "candidates": [
+   1699160400000,
+   1699164000000
+  ]
+ },
+ {
+  "tz": "America/New_York",
+  "date": "2023-11-05",
+  "time": "01:30",
+  "note": "DST overlap — середина",
+  "status": "ambiguous-local-time",
+  "candidates": [
+   1699162200000,
+   1699165800000
+  ]
+ },
+ {
+  "tz": "America/New_York",
+  "date": "2023-11-05",
+  "time": "02:00",
+  "note": "после overlap",
+  "status": "ok",
+  "candidates": [
+   1699167600000
+  ]
+ },
+ {
+  "tz": "Europe/Berlin",
+  "date": "2023-03-26",
+  "time": "02:30",
+  "note": "gap, Европа",
+  "status": "invalid-local-time",
+  "candidates": []
+ },
+ {
+  "tz": "Europe/Berlin",
+  "date": "2023-10-29",
+  "time": "02:30",
+  "note": "overlap, Европа",
+  "status": "ambiguous-local-time",
+  "candidates": [
+   1698539400000,
+   1698543000000
+  ]
+ },
+ {
+  "tz": "Europe/Moscow",
+  "date": "2011-03-27",
+  "time": "02:30",
+  "note": "gap: последний перевод вперёд в РФ",
+  "status": "invalid-local-time",
+  "candidates": []
+ },
+ {
+  "tz": "Europe/Moscow",
+  "date": "2011-03-27",
+  "time": "03:30",
+  "note": "после последнего перевода вперёд",
+  "status": "ok",
+  "candidates": [
+   1301182200000
+  ]
+ },
+ {
+  "tz": "Europe/Moscow",
+  "date": "2014-10-26",
+  "time": "01:30",
+  "note": "overlap: перевод на постоянное +3",
+  "status": "ambiguous-local-time",
+  "candidates": [
+   1414272600000,
+   1414276200000
+  ]
+ },
+ {
+  "tz": "Europe/Moscow",
+  "date": "2014-10-26",
+  "time": "03:30",
+  "note": "после перевода на +3",
+  "status": "ok",
+  "candidates": [
+   1414283400000
+  ]
+ },
+ {
+  "tz": "Australia/Lord_Howe",
+  "date": "2023-10-01",
+  "time": "02:15",
+  "note": "gap 30 минут",
+  "status": "invalid-local-time",
+  "candidates": []
+ },
+ {
+  "tz": "Australia/Lord_Howe",
+  "date": "2023-04-02",
+  "time": "01:45",
+  "note": "overlap 30 минут",
+  "status": "ambiguous-local-time",
+  "candidates": [
+   1680360300000,
+   1680362100000
+  ]
+ },
+ {
+  "tz": "Pacific/Apia",
+  "date": "2011-12-30",
+  "time": "12:00",
+  "note": "целый пропущенный день",
+  "status": "invalid-local-time",
+  "candidates": []
+ },
+ {
+  "tz": "Pacific/Apia",
+  "date": "2011-12-31",
+  "time": "12:00",
+  "note": "день после пропуска",
+  "status": "ok",
+  "candidates": [
+   1325282400000
+  ]
+ },
+ {
+  "tz": "America/Sao_Paulo",
+  "date": "2018-11-04",
+  "time": "00:30",
+  "note": "gap в полночь",
+  "status": "invalid-local-time",
+  "candidates": []
+ },
+ {
+  "tz": "Asia/Kathmandu",
+  "date": "2023-06-01",
+  "time": "12:00",
+  "note": "смещение +5:45",
+  "status": "ok",
+  "candidates": [
+   1685600100000
+  ]
+ },
+ {
+  "tz": "Pacific/Kiritimati",
+  "date": "2023-06-01",
+  "time": "12:00",
+  "note": "смещение +14",
+  "status": "ok",
+  "candidates": [
+   1685570400000
+  ]
+ },
+ {
+  "tz": "Asia/Kolkata",
+  "date": "1941-06-01",
+  "time": "12:00",
+  "note": "историческое смещение Индии",
+  "status": "ok",
+  "candidates": [
+   -902079000000
+  ]
+ }
+]

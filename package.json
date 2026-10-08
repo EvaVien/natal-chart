@@ -1,0 +1,11 @@
+{
+  "name": "efemerida-natal-chart",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Эфемерида — натальная карта в браузере. Чистый HTML/CSS/JS, без сборки и зависимостей.",
+  "license": "MIT",
+  "scripts": {
+    "test": "node --test"
+  },
+  "engines": { "node": ">=20" }
+}
